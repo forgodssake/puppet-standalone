@@ -1,5 +1,6 @@
 class standalone (
-  $base_path,
+  $base_path = undef,
+  $puppet_server = undef,
   $root_password,
   $users,
   $network_port_knock_ports = undef,
@@ -8,12 +9,26 @@ class standalone (
   $cosmetic_ps1_root = '[\[\033[01;31m\]\u\[\033[00m\]@\h \[\033[01;34m\]\W\[\033[00m\]]\$ ',
 
 ){
+  if $base_path != undef and $puppet_server != undef {
+    fail("You can't set base_path and puppet_server at the same time in module ${module_name}")
+  }
 
+  if $base_path != undef {
   # Useful script to force a puppet run at any time
   file { '/usr/local/sbin/repuppet':
     mode    => '0750',
-    content => template("${module_name}/repuppet.erb"),
+    content => template("${module_name}/repuppet_base_path.erb"),
   }
+  }
+  if $puppet_server != undef {
+  # Useful script to force a puppet run at any time
+  file { '/usr/local/sbin/repuppet':
+    mode    => '0750',
+    content => template("${module_name}/repuppet_puppet_server.erb"),
+  }
+  }
+
+
 
   # User config
   class { '::root':
@@ -68,6 +83,7 @@ class standalone (
       port2  => $network_port_knock_ports[1],
       port3  => $network_port_knock_ports[2],
       dports => [ '22' ],
+      seconds_open => '20',
     }
   }
 }
