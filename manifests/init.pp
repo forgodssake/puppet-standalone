@@ -3,6 +3,7 @@ class standalone (
   $puppet_server = undef,
   $root_password,
   $users,
+  $group_admin,
   $network_port_knock_ports = undef,
   $network_allowed_networks = undef,
   $cosmetic_ps1 = '[\[\033[01;32m\]\u\[\033[00m\]@\h \[\033[01;34m\]\W\[\033[00m\]]\$ ',
@@ -35,12 +36,21 @@ class standalone (
     password => $root_password,
   }
 
+  if !has_key($users, $group_admin) {
+    fail("You need to specify a \$group_admin that exists in \$users")
+  }
+
   $users.each |String $group, Hash $g_users| {
     group { $group: ensure => present}
 
+    $user_group = $group ? {
+      $group_admin => [ $group,  'wheel'],
+      default => $group,
+    }
+
     $g_users.each |String $user, Hash $u_data| {
       user { $user:
-        groups   => $group,
+        groups   => $user_group,
         home     => "/home/${user}",
         shell    => '/bin/bash',
         password => $u_data['password'],
