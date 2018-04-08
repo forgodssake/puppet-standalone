@@ -15,21 +15,20 @@ class standalone (
   }
 
   if $base_path != undef {
-  # Useful script to force a puppet run at any time
-  file { '/usr/local/sbin/repuppet':
-    mode    => '0750',
-    content => template("${module_name}/repuppet_base_path.erb"),
+    # Useful script to force a puppet run at any time
+    file { '/usr/local/sbin/repuppet':
+      mode    => '0750',
+      content => template("${module_name}/repuppet_base_path.erb"),
+    }
   }
-  }
+
   if $puppet_server != undef {
-  # Useful script to force a puppet run at any time
-  file { '/usr/local/sbin/repuppet':
-    mode    => '0750',
-    content => template("${module_name}/repuppet_puppet_server.erb"),
+    # Useful script to force a puppet run at any time
+    file { '/usr/local/sbin/repuppet':
+      mode    => '0750',
+      content => template("${module_name}/repuppet_puppet_server.erb"),
+    }
   }
-  }
-
-
 
   # User config
   class { '::root':
